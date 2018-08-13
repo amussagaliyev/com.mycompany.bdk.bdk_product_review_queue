@@ -1,27 +1,26 @@
 package com.mycompany.service.product_review.queue_configuration;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 
-import com.mycompany.sdk.redis.RedisQueue;
 import com.mycompany.service.product_review.queue.Queues;
-import com.mycompany.service.product_review.queue.SubmittedQueue;
 import com.mycompany.service.product_review.queue_processor.ArchivedQueueProcessor;
 import com.mycompany.service.product_review.queue_processor.PublishedQueueProcessor;
 import com.mycompany.service.product_review.queue_processor.SubmittedQueueProcessor;
 
 @Configuration
 @ComponentScan("com.mycompany")
-@PropertySource("classpath:application.properties")
 public class QueueConfiguration
 {
 
@@ -29,7 +28,20 @@ public class QueueConfiguration
 	@Bean
 	public JedisConnectionFactory jedisConnectionFactory()
 	{
-		return new JedisConnectionFactory();
+		try
+		{
+			InitialContext ic = new InitialContext();
+			String hostName = (String) ic.lookup("java:comp/env/redis.host");
+			Integer port = (Integer) ic.lookup("java:comp/env/redis.port");
+			
+			RedisStandaloneConfiguration conf = new RedisStandaloneConfiguration(hostName, port);
+			
+			return new JedisConnectionFactory(conf);
+		} catch (NamingException e)
+		{
+			throw new RuntimeException("Could not obtain Redis configuration from JNDI.", e);
+		}
+		
 	}
 
 	@Bean

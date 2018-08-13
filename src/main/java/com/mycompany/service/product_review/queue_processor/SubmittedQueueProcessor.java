@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mycompany.model.product_review.ProductReview;
 import com.mycompany.model.product_review.ProductReviewDao;
 import com.mycompany.model.product_review.ProductReviewStatus;
-import com.mycompany.model.product_review.ProductReviewStatusDao;
 import com.mycompany.sdk.redis.AbstractRedisQueue;
 import com.mycompany.service.product_review.ProductReviewStatusService;
 
