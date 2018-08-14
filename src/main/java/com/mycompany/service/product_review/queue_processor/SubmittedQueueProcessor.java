@@ -3,6 +3,8 @@ package com.mycompany.service.product_review.queue_processor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
@@ -19,6 +21,8 @@ import com.mycompany.service.product_review.ProductReviewStatusService;
 @Transactional
 public class SubmittedQueueProcessor implements MessageListener
 {
+
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private ProductReviewStatusService productReviewStatusService;
@@ -68,15 +72,19 @@ public class SubmittedQueueProcessor implements MessageListener
 				if (containsInappropriateLanguage)
 				{
 					archivedQueue.publish(productReview.getProductReviewID().toString());
+					log.info("Review has not passed check. " + productReview.getProductReviewID());
+					log.info(productReview.getComments());
 				}
 				else
 				{
 					publishedQueue.publish(productReview.getProductReviewID().toString());
+					log.info("Review has passed check. " + productReview.getProductReviewID());
 				}
 			}
 			catch (Throwable e)
 			{
-				ProductReviewStatus newProductReviewStatus = productReviewStatusService.buildProductReviewStatusError("Review has not been processed due to system error." + e.getMessage());
+				log.error("Error while processing review", e);
+				ProductReviewStatus newProductReviewStatus = productReviewStatusService.buildProductReviewStatusError("Review has not been processed due to system error.");
 				productReviewStatusService.setCurrentProductReviewStatus(productReview, newProductReviewStatus);
 			}
 			productReviewDao.save(productReview);
