@@ -1,0 +1,31 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+
+group = 'com.mycompany.bdk'
+version = '2.0-SNAPSHOT'
+
+description = """"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+	mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'com.mycompany.bdk', name: 'bdk_product_review', version:'2.0-SNAPSHOT'
+    compile group: 'com.mycompany.sdk', name: 'sdk_redis', version:'2.0-SNAPSHOT'
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version:'1.6.1'
+    runtime group: 'log4j', name: 'log4j', version:'1.2.16'
+}
+
+publishing {
+	publications {
+		mavenLocal(MavenPublication) {
+			from components.java
+		}
+	}
+}

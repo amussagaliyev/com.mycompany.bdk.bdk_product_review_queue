@@ -1,0 +1,2 @@
+rootProject.name = 'bdk_product_review_queue'
+enableFeaturePreview('STABLE_PUBLISHING')
